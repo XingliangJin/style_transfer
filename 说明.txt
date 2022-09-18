@@ -1,0 +1,20 @@
+本代码的实验设置
+
+将content label（6类）加到style code里面（通过one_hot编码和自定义的content_mlp），保存在train文件夹里面
+
+
+
+更改设置及对应的代码处
+#加label
+1、训练的数据集上以及测试的数据上面应该要有对应的label
+（在./data_proc/export_train.py里面增加dataset里面的label（keys），这样更改后需要重新生成下数据集
+    在data_loader.py里面的process_single_bvh函数里面增加测试的时候要输入的label，
+    这两个地方设置的label key应该相同，这里content label用的是content_label，style label用的是label）
+
+2、在model.py里面的forward函数里面的gen_update和dis_update添加训练时候的设置（如何加的label）
+
+3、在model.py里面的test函数里面添加测试时候的设置（如何加的label）（涉及到style label要区分3d和2d风格动作，因为2的风格动作没有label）
+
+4、如果用不同的设置可以新建不同的model，在trainer里面导入不同的model
+
+5、config里面设置训练和测试时候选择的模型
