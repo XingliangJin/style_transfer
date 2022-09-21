@@ -13,7 +13,7 @@ class Config:
     for_try = False  # set to True only if you want to quickly check if all parts (latent space visualization, result output, etc.) function correctly 
 
     # Save & Visualization
-    name = 'train_cc'     # name of the experiment, for training from scratch please use a different name
+    name = 'train_cs'     # name of the experiment, for training from scratch please use a different name
 
     cuda_id = 0
 
@@ -120,6 +120,8 @@ class Config:
     """
     mlp_dims = [enc_cl_channels[-1], 192, 256]
 #change here
+    content_mlp_dim = 6
+    style_mlp_dim = 8
     out_dim = 256
     """
     decoder

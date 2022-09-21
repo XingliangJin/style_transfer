@@ -159,14 +159,15 @@ class myMLP(nn.Module):
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+
         # return F.log_softmax(self.fc3(x), dim=1)
         return F.log_softmax(self.fc3(x), dim=1)
 
 class MLP_label(nn.Module):
-    def __init__(self,input_dim):
+    def __init__(self,config):
         super().__init__()
 
-        self.input_dim = input_dim
+        input_dim = config.content_mlp_dim
         self.fc1 = nn.Linear(input_dim, 128).cuda()
         self.fc2 = nn.Linear(128, 256).cuda()
         self.fc3 = nn.Linear(256, 144).cuda()
@@ -186,6 +187,7 @@ class JointGen(nn.Module):
         self.dec = Decoder(config)
         self.mlp = MLP(config,
                        get_num_adain_params(self.dec))
+        self.content_mlp = MLP_label(config)
         self.fk = ForwardKinematics()
 
     def rot_to_motion(self, rotations):

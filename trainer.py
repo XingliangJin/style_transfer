@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.init as init
 from torch.optim import lr_scheduler
 
-from model_cc import Model
+from model import Model
 from py_utils import update_dict
 
 

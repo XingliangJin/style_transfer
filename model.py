@@ -30,10 +30,6 @@ class Model(nn.Module):
         self.device = config.device
         self.mse = nn.MSELoss()
         self.triplet_loss = nn.TripletMarginLoss(margin=config.triplet_margin)
-        self.transformer = nn.Transformer(nhead=1, num_encoder_layers=1)
-        #实例化两个mlp模型
-        self.content_mlp = MLP_label(6)
-        self.style_mlp = MLP_label(8)
 
         self.nets = [self.gen, self.dis]
 
@@ -130,7 +126,7 @@ class Model(nn.Module):
             la_content = co_data["content_label"]
             #print (la_content)
             la_one_hot = torch.nn.functional.one_hot(la_content, num_classes=6)#指定得到的one_hot编码的长度
-            c_la = self.content_mlp(torch.tensor(la_one_hot).float().to(self.device))#用固定长度数据输入到mlp
+            c_la = self.gen.content_mlp(torch.tensor(la_one_hot).float().to(self.device))#用固定长度数据输入到mlp
             c_la = c_la.unsqueeze(-1)
             attention_xa = c_la.mul(s_xa)
             attention_xb = c_la.mul(s_xb)
@@ -279,12 +275,13 @@ class Model(nn.Module):
                 la_content = co_data["content_label"]
                 #print (la_content)
                 la_one_hot = torch.nn.functional.one_hot(la_content, num_classes=6)#指定得到的one_hot编码的长度
-                c_la = self.content_mlp(torch.tensor(la_one_hot).float().to(self.device))#用固定长度数据输入到mlp
+                c_la = self.gen.content_mlp(torch.tensor(la_one_hot).float().to(self.device))#用固定长度数据输入到mlp
                 c_la = c_la.unsqueeze(-1)
                 attention_xa = c_la.mul(s_xa)
                 attention_xb = c_la.mul(s_xb)
                 s_xa = torch.mul(torch.sigmoid(attention_xa),s_xa)
                 s_xb = torch.mul(torch.sigmoid(attention_xb),s_xb)
+                
 
                 xt, rxt = self.gen.decode(c_xa, s_xb)
                 xr, rxr = self.gen.decode(c_xa, s_xa)
@@ -364,15 +361,23 @@ class Model(nn.Module):
         s_xb = self.gen.enc_style(yb, stylestr[-2:])
 
         #add content label(total 6) to style code
+        #print (s_xb.mean())
+        #print (s_xb.var())
         la = co_data["content_label"]
+        xxx = torch.tensor([1])#代表run
         print (la)
-        la_one_hot = torch.nn.functional.one_hot(la, num_classes=6)#指定得到的one_hot编码的长度
-        c_la = self.content_mlp(torch.tensor(la_one_hot).float().to(self.device))#用固定长度数据输入到mlp
+        print (xxx)
+        la_one_hot = torch.nn.functional.one_hot(xxx, num_classes=6)#指定得到的one_hot编码的长度
+        #model_mlp = myMLP(la_one_hot)
+        c_la = self.gen.content_mlp(torch.tensor(la_one_hot).float().to(self.device))#用固定长度数据输入到mlp
         c_la = c_la.unsqueeze(-1)
         attention_xa = c_la.mul(s_xa)
         attention_xb = c_la.mul(s_xb)
         s_xa = torch.mul(torch.sigmoid(attention_xa),s_xa)
         s_xb = torch.mul(torch.sigmoid(attention_xb),s_xb)
+        #print (s_xb)
+        #print (s_xb.mean())
+        #print (s_xb.var())
 
         _, rxt = self.gen.decode(c_xa, s_xb)
         _, rxr = self.gen.decode(c_xa, s_xa)
